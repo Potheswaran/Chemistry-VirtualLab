@@ -1,5 +1,5 @@
 streamlit>=1.40,<2.0
-rdkit>=2024.3.5
+rdkit==2025.9.2
 py3Dmol>=2.0.4
 pandas>=2.1
 matplotlib>=3.8
