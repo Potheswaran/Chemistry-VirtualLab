@@ -61,15 +61,15 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: var(--black) !important; color: var(--yellow) !important; }
 [data-testid="stHeader"] { background: rgba(0,0,0,.96) !important; }
 [data-testid="stSidebar"] { display: none; }
-.block-container { padding-top: .8rem; padding-bottom: 3rem; max-width: 1440px; }
+.block-container { padding-top: 1.8rem; padding-bottom: 3rem; max-width: 1440px; }
 .stApp p, .stApp li, .stApp label, .stApp span, .stApp div, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5 { color: var(--yellow); }
 .top-brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--yellow) !important; padding: .42rem 0; white-space: nowrap; }
 .top-brand span { color: var(--yellow-soft) !important; }
-.st-key-top_nav_bar { position: sticky; top: 0; z-index: 99999; background: #000 !important; padding: .45rem .35rem .65rem; border-bottom: 2px solid var(--yellow); margin-bottom: 1rem; }
+.st-key-top_nav_bar { position: sticky; top: 2.8rem; z-index: 99999; background: #000 !important; padding: .65rem .5rem .8rem; border-bottom: 2px solid var(--yellow); margin-bottom: 1.4rem; box-shadow: 0 8px 14px rgba(0,0,0,.9); }
 .st-key-top_nav_bar [data-testid="stRadio"] > div { gap: .3rem; flex-wrap: wrap; }
-.st-key-top_nav_bar [data-testid="stRadio"] label { border: 1px solid var(--yellow); background: #080808; padding: .35rem .65rem; border-radius: 999px; margin: 0; font-size: .84rem; }
+.st-key-top_nav_bar [data-testid="stRadio"] label { border: 1px solid var(--yellow) !important; background: #080808 !important; color: var(--yellow) !important; padding: .42rem .72rem; border-radius: 999px; margin: 0; font-size: .84rem; opacity: 1 !important; }\n.st-key-top_nav_bar [data-testid="stRadio"] label p, .st-key-top_nav_bar [data-testid="stRadio"] label span, .st-key-top_nav_bar [data-testid="stRadio"] label div { color: var(--yellow) !important; opacity: 1 !important; }
 .st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) { background: var(--yellow); border-color: var(--yellow); color: #000 !important; }
-.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) p { color: #000 !important; }
+.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) p, .st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) span, .st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) div { color: #000 !important; opacity: 1 !important; }
 .st-key-top_nav_bar [data-testid="stRadio"] label p { margin: 0; }
 .st-key-top_navigation_radio { position: static; }
 .hero { padding: 30px 34px; border-radius: 18px; background: #050505; border: 1px solid var(--yellow); color: var(--yellow); margin-bottom: 24px; position: relative; overflow: hidden; }
@@ -95,6 +95,13 @@ input, textarea, [data-baseweb="input"], [data-baseweb="select"] > div, [data-ba
 [data-testid="stTabs"] button[aria-selected="true"] { border-bottom-color: var(--yellow) !important; }
 [data-testid="stAlert"] { background: #090909 !important; border: 1px solid var(--yellow) !important; color: var(--yellow) !important; }
 code, pre { background: #111 !important; color: var(--yellow) !important; }
+/* Strong contrast overrides for navigation and all interactive controls */
+.st-key-top_nav_bar [data-testid="stRadio"] label:not(:has(input:checked)) * { color: #ffd600 !important; }
+.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) { background: #ffd600 !important; }
+.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) * { color: #000000 !important; }
+[data-baseweb="select"] > div, [data-baseweb="input"] > div, [data-baseweb="textarea"] { background-color: #080808 !important; }
+[data-baseweb="select"] input, [data-baseweb="input"] input, textarea { color: #ffd600 !important; -webkit-text-fill-color: #ffd600 !important; }
+[data-testid="stSelectbox"] svg { fill: #ffd600 !important; }
 footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
