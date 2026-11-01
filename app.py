@@ -96,6 +96,33 @@ input, textarea, [data-baseweb="input"], [data-baseweb="select"] > div, [data-ba
 [data-testid="stAlert"] { background: #090909 !important; border: 1px solid var(--yellow) !important; color: var(--yellow) !important; }
 code, pre { background: #111 !important; color: var(--yellow) !important; }
 /* Strong contrast overrides for navigation and all interactive controls */
+/* Primary yellow buttons must always use black text, including nested Streamlit spans and paragraphs. */
+.stApp button[kind="primary"],
+.stApp [data-testid="stFormSubmitButton"] button,
+.stApp [data-testid="stDownloadButton"] button[kind="primary"] {
+    background: #ffd600 !important;
+    border-color: #ffd600 !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
+.stApp button[kind="primary"] *,
+.stApp [data-testid="stFormSubmitButton"] button *,
+.stApp [data-testid="stDownloadButton"] button[kind="primary"] * {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    opacity: 1 !important;
+}
+.stApp button[kind="primary"]:hover,
+.stApp [data-testid="stFormSubmitButton"] button:hover,
+.stApp [data-testid="stDownloadButton"] button[kind="primary"]:hover {
+    background: #ffe766 !important;
+    color: #000000 !important;
+}
+.stApp button[kind="primary"]:hover *,
+.stApp [data-testid="stFormSubmitButton"] button:hover * {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+}
 .st-key-top_nav_bar [data-testid="stRadio"] label:not(:has(input:checked)) * { color: #ffd600 !important; }
 .st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) { background: #ffd600 !important; }
 .st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) * { color: #000000 !important; }
