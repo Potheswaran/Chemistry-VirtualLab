@@ -65,7 +65,7 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 .stApp p, .stApp li, .stApp label, .stApp span, .stApp div, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5 { color: var(--yellow); }
 .top-brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--yellow) !important; padding: .42rem 0; white-space: nowrap; }
 .top-brand span { color: var(--yellow-soft) !important; }
-.st-key-top_nav_bar { position: sticky; top: 2.8rem; z-index: 99999; background: #000 !important; padding: .65rem .5rem .8rem; border-bottom: 2px solid var(--yellow); margin-bottom: 1.4rem; box-shadow: 0 8px 14px rgba(0,0,0,.9); }
+.st-key-top_nav_bar { position: sticky; top: 4.2rem; z-index: 99999; background: #000 !important; padding: .65rem .5rem .8rem; border-bottom: 2px solid var(--yellow); margin-bottom: 1.4rem; box-shadow: 0 8px 14px rgba(0,0,0,.9); }
 .st-key-top_nav_bar [data-testid="stRadio"] > div { gap: .3rem; flex-wrap: wrap; }
 .st-key-top_nav_bar [data-testid="stRadio"] label { border: 1px solid var(--yellow) !important; background: #080808 !important; color: var(--yellow) !important; padding: .42rem .72rem; border-radius: 999px; margin: 0; font-size: .84rem; opacity: 1 !important; }\n.st-key-top_nav_bar [data-testid="stRadio"] label p, .st-key-top_nav_bar [data-testid="stRadio"] label span, .st-key-top_nav_bar [data-testid="stRadio"] label div { color: var(--yellow) !important; opacity: 1 !important; }
 .st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) { background: var(--yellow); border-color: var(--yellow); color: #000 !important; }
@@ -211,7 +211,7 @@ def create_pdf(molecule_name, smiles, props, observations="Generated with Molecu
         Spacer(1, 8),
         Paragraph(f"<b>Compound:</b> {html.escape(str(molecule_name))}", styles["BodyText"]),
         Paragraph(f"<b>SMILES:</b> {html.escape(str(smiles))}", styles["SmallBody"]),
-        Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%d %b %Y, %H:%M')}", styles["SmallBody"]),
+        Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%d %b %Y')}", styles["SmallBody"]),
         Spacer(1, 14),
         Paragraph("Calculated molecular properties", styles["Heading2"]),
     ]
@@ -246,7 +246,7 @@ def create_batch_pdf(student_name, registration_number, compounds, observations)
     story = [Paragraph("MoleculeLab", styles["BatchTitle"]), Paragraph("Virtual Chemistry Laboratory · Multi-Compound Analysis Report", styles["Heading2"]), Spacer(1, 10),
              Paragraph(f"<b>Student name:</b> {html.escape(student_name)}", styles["BodyText"]),
              Paragraph(f"<b>Registration number:</b> {html.escape(registration_number)}", styles["BodyText"]),
-             Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%d %b %Y, %H:%M')}", styles["BatchSmall"]), Spacer(1, 12),
+             Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%d %b %Y')}", styles["BatchSmall"]), Spacer(1, 12),
              Paragraph(f"<b>Number of compounds:</b> {len(compounds)}", styles["BodyText"]), Spacer(1, 10)]
     for idx, item in enumerate(compounds, 1):
         if idx > 1:
