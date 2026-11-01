@@ -56,40 +56,44 @@ EXAMPLES = {
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-:root { color-scheme: light; }
+:root { color-scheme: dark; --black: #000000; --panel: #090909; --yellow: #ffd600; --yellow-soft: #fff176; }
 html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
-.stApp { background: #f5f7fb; color: #15233b; }
-[data-testid="stHeader"] { background: rgba(245,247,251,.88); }
+.stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: var(--black) !important; color: var(--yellow) !important; }
+[data-testid="stHeader"] { background: rgba(0,0,0,.96) !important; }
 [data-testid="stSidebar"] { display: none; }
 .block-container { padding-top: .8rem; padding-bottom: 3rem; max-width: 1440px; }
-.top-brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; color: #14334d; padding: .42rem 0; white-space: nowrap; }
-.top-brand span { color: #0f9387; }
-.st-key-top_navigation { position: sticky; top: 0; z-index: 999; background: rgba(245,247,251,.97); padding: .25rem 0 .6rem; border-bottom: 1px solid #dfe7f0; }
+.stApp p, .stApp li, .stApp label, .stApp span, .stApp div, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5 { color: var(--yellow); }
+.top-brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--yellow) !important; padding: .42rem 0; white-space: nowrap; }
+.top-brand span { color: var(--yellow-soft) !important; }
+.st-key-top_navigation { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,.98); padding: .25rem 0 .6rem; border-bottom: 1px solid var(--yellow); }
 .st-key-top_navigation [data-testid="stRadio"] > div { gap: .3rem; flex-wrap: wrap; }
-.st-key-top_navigation [data-testid="stRadio"] label { border: 1px solid #dce5ef; background: white; padding: .35rem .65rem; border-radius: 999px; margin: 0; font-size: .84rem; }
-.st-key-top_navigation [data-testid="stRadio"] label:has(input:checked) { background: #12334e; border-color: #12334e; color: white; }
-.st-key-top_navigation [data-testid="stRadio"] label:has(input:checked) p { color: white !important; }
+.st-key-top_navigation [data-testid="stRadio"] label { border: 1px solid var(--yellow); background: #080808; padding: .35rem .65rem; border-radius: 999px; margin: 0; font-size: .84rem; }
+.st-key-top_navigation [data-testid="stRadio"] label:has(input:checked) { background: var(--yellow); border-color: var(--yellow); color: #000 !important; }
+.st-key-top_navigation [data-testid="stRadio"] label:has(input:checked) p { color: #000 !important; }
 .st-key-top_navigation [data-testid="stRadio"] label p { margin: 0; }
-.hero {
-    padding: 30px 34px; border-radius: 22px;
-    background: linear-gradient(115deg, #10223c 0%, #163d5c 55%, #167d80 100%);
-    color: white; margin-bottom: 24px; position: relative; overflow: hidden;
-}
-.hero:after { content: "⚛"; position: absolute; right: 30px; top: -36px; font-size: 180px; opacity: .08; }
-.hero h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 3.2rem); margin: 5px 0 10px; color: white; }
-.hero p { color: #d8e7f4; font-size: 1.04rem; max-width: 760px; margin-bottom: 0; }
-.eyebrow { text-transform: uppercase; letter-spacing: .18em; font-size: .72rem; font-weight: 700; color: #73e0ce; }
-.section-head { font-family: 'Space Grotesk', sans-serif; color: #14243b; font-size: 1.55rem; font-weight: 700; margin: 8px 0 5px; }
-.subtle { color: #66758c; font-size: .92rem; }
-.metric-card { background: white; border: 1px solid #e4eaf2; border-radius: 16px; padding: 18px 20px; min-height: 112px; box-shadow: 0 5px 20px rgba(24,45,77,.035); }
-.metric-label { color: #6b7a90; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-.metric-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 700; color: #152a45; margin-top: 6px; }
-.panel { background: white; border: 1px solid #e4eaf2; border-radius: 18px; padding: 22px; box-shadow: 0 5px 20px rgba(24,45,77,.035); }
-.pill { display:inline-block; padding: 5px 10px; border-radius: 99px; background:#e5f7f3; color:#087d72; font-size:.76rem; font-weight:700; }
-hr { border-color: #e3eaf2; }
-.stButton > button[kind="primary"] { background: #0f9387; border-color: #0f9387; }
-.stButton > button { border-radius: 10px; font-weight: 600; }
-div[data-testid="stDownloadButton"] button { border-radius: 10px; }
+.hero { padding: 30px 34px; border-radius: 18px; background: #050505; border: 1px solid var(--yellow); color: var(--yellow); margin-bottom: 24px; position: relative; overflow: hidden; }
+.hero:after { content: "⚛"; position: absolute; right: 30px; top: -36px; font-size: 180px; color: var(--yellow); opacity: .09; }
+.hero h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 3.2rem); margin: 5px 0 10px; color: var(--yellow) !important; }
+.hero p { color: var(--yellow-soft) !important; font-size: 1.04rem; max-width: 760px; margin-bottom: 0; }
+.eyebrow { text-transform: uppercase; letter-spacing: .18em; font-size: .72rem; font-weight: 700; color: var(--yellow) !important; }
+.section-head { font-family: 'Space Grotesk', sans-serif; color: var(--yellow) !important; font-size: 1.55rem; font-weight: 700; margin: 8px 0 5px; }
+.subtle, [data-testid="stCaptionContainer"] { color: var(--yellow-soft) !important; font-size: .92rem; }
+.metric-card { background: #080808; border: 1px solid var(--yellow); border-radius: 12px; padding: 18px 20px; min-height: 112px; box-shadow: none; }
+.metric-label { color: var(--yellow-soft) !important; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.metric-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--yellow) !important; margin-top: 6px; }
+.panel, [data-testid="stExpander"], [data-testid="stVerticalBlockBorderWrapper"] { background: #050505; border: 1px solid #6b5b00; border-radius: 12px; box-shadow: none; }
+.pill { display:inline-block; padding: 5px 10px; border-radius: 99px; background: var(--yellow); color:#000 !important; font-size:.76rem; font-weight:700; }
+hr { border-color: var(--yellow) !important; }
+.stButton > button, div[data-testid="stDownloadButton"] button, [data-testid="stFormSubmitButton"] button { border: 1px solid var(--yellow) !important; background: #080808 !important; color: var(--yellow) !important; border-radius: 9px; font-weight: 700; }
+.stButton > button[kind="primary"], [data-testid="stFormSubmitButton"] button[kind="primary"] { background: var(--yellow) !important; border-color: var(--yellow) !important; color: #000 !important; }
+.stButton > button:hover, div[data-testid="stDownloadButton"] button:hover { background: var(--yellow) !important; color: #000 !important; }
+input, textarea, [data-baseweb="input"], [data-baseweb="select"] > div, [data-baseweb="textarea"] { background: #080808 !important; color: var(--yellow) !important; border-color: var(--yellow) !important; }
+[data-baseweb="select"] *, [role="listbox"], [role="option"] { background-color: #080808 !important; color: var(--yellow) !important; }
+[data-testid="stDataFrame"], [data-testid="stTable"] { border: 1px solid var(--yellow); }
+[data-testid="stTabs"] button { color: var(--yellow) !important; }
+[data-testid="stTabs"] button[aria-selected="true"] { border-bottom-color: var(--yellow) !important; }
+[data-testid="stAlert"] { background: #090909 !important; border: 1px solid var(--yellow) !important; color: var(--yellow) !important; }
+code, pre { background: #111 !important; color: var(--yellow) !important; }
 footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
@@ -143,7 +147,7 @@ def make_3d_html(mol, style="stick"):
     viewer = py3Dmol.view(width=760, height=460)
     viewer.addModel(block, "mol")
     viewer.setStyle({"stick": {}} if style == "stick" else {"sphere": {"scale": 0.28}, "stick": {"radius": 0.12}})
-    viewer.setBackgroundColor("#f8fbff")
+    viewer.setBackgroundColor("#000000")
     viewer.zoomTo()
     return viewer._make_html()
 
@@ -341,11 +345,16 @@ elif page == "📊 Structure Analysis":
         numeric_cols = [c for c in df.select_dtypes(include="number").columns if c not in ("Total atoms (incl. implicit H)",)]
         if numeric_cols:
             chosen_prop = st.selectbox("Descriptor to visualize", numeric_cols, index=numeric_cols.index("Molecular weight (g/mol)") if "Molecular weight (g/mol)" in numeric_cols else 0)
-            fig, ax = plt.subplots(figsize=(9, 4.3))
-            ax.bar(df["Compound"], df[chosen_prop])
-            ax.set_ylabel(chosen_prop)
-            ax.set_title(f"{chosen_prop} by compound")
-            ax.tick_params(axis="x", rotation=25)
+            fig, ax = plt.subplots(figsize=(9, 4.3), facecolor="#000000")
+            ax.set_facecolor("#000000")
+            ax.bar(df["Compound"], df[chosen_prop], color="#ffd600", edgecolor="#fff176")
+            ax.set_ylabel(chosen_prop, color="#ffd600")
+            ax.set_title(f"{chosen_prop} by compound", color="#ffd600")
+            ax.tick_params(axis="x", rotation=25, colors="#ffd600")
+            ax.tick_params(axis="y", colors="#ffd600")
+            for spine in ax.spines.values():
+                spine.set_color("#ffd600")
+            ax.grid(axis="y", color="#665500", alpha=0.5)
             fig.tight_layout()
             st.pyplot(fig)
             plt.close(fig)
