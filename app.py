@@ -65,12 +65,13 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 .stApp p, .stApp li, .stApp label, .stApp span, .stApp div, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5 { color: var(--yellow); }
 .top-brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--yellow) !important; padding: .42rem 0; white-space: nowrap; }
 .top-brand span { color: var(--yellow-soft) !important; }
-.st-key-top_navigation { position: sticky; top: 0; z-index: 999; background: rgba(0,0,0,.98); padding: .25rem 0 .6rem; border-bottom: 1px solid var(--yellow); }
-.st-key-top_navigation [data-testid="stRadio"] > div { gap: .3rem; flex-wrap: wrap; }
-.st-key-top_navigation [data-testid="stRadio"] label { border: 1px solid var(--yellow); background: #080808; padding: .35rem .65rem; border-radius: 999px; margin: 0; font-size: .84rem; }
-.st-key-top_navigation [data-testid="stRadio"] label:has(input:checked) { background: var(--yellow); border-color: var(--yellow); color: #000 !important; }
-.st-key-top_navigation [data-testid="stRadio"] label:has(input:checked) p { color: #000 !important; }
-.st-key-top_navigation [data-testid="stRadio"] label p { margin: 0; }
+.st-key-top_nav_bar { position: sticky; top: 0; z-index: 99999; background: #000 !important; padding: .45rem .35rem .65rem; border-bottom: 2px solid var(--yellow); margin-bottom: 1rem; }
+.st-key-top_nav_bar [data-testid="stRadio"] > div { gap: .3rem; flex-wrap: wrap; }
+.st-key-top_nav_bar [data-testid="stRadio"] label { border: 1px solid var(--yellow); background: #080808; padding: .35rem .65rem; border-radius: 999px; margin: 0; font-size: .84rem; }
+.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) { background: var(--yellow); border-color: var(--yellow); color: #000 !important; }
+.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) p { color: #000 !important; }
+.st-key-top_nav_bar [data-testid="stRadio"] label p { margin: 0; }
+.st-key-top_navigation_radio { position: static; }
 .hero { padding: 30px 34px; border-radius: 18px; background: #050505; border: 1px solid var(--yellow); color: var(--yellow); margin-bottom: 24px; position: relative; overflow: hidden; }
 .hero:after { content: "⚛"; position: absolute; right: 30px; top: -36px; font-size: 180px; color: var(--yellow); opacity: .09; }
 .hero h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(2rem, 4vw, 3.2rem); margin: 5px 0 10px; color: var(--yellow) !important; }
@@ -201,6 +202,34 @@ def create_pdf(molecule_name, smiles, props, observations="Generated with Molecu
     buffer.seek(0)
     return buffer.getvalue()
 
+def create_batch_pdf(student_name, registration_number, compounds, observations):
+    """Create one PDF containing student details and property tables for many compounds."""
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=0.6*inch, leftMargin=0.6*inch, topMargin=0.55*inch, bottomMargin=0.55*inch)
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name="BatchTitle", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=21, leading=25, textColor=colors.HexColor("#b38b00"), alignment=TA_CENTER, spaceAfter=10))
+    styles.add(ParagraphStyle(name="BatchSmall", parent=styles["BodyText"], fontSize=8.5, leading=11))
+    story = [Paragraph("MoleculeLab", styles["BatchTitle"]), Paragraph("Virtual Chemistry Laboratory · Multi-Compound Analysis Report", styles["Heading2"]), Spacer(1, 10),
+             Paragraph(f"<b>Student name:</b> {html.escape(student_name)}", styles["BodyText"]),
+             Paragraph(f"<b>Registration number:</b> {html.escape(registration_number)}", styles["BodyText"]),
+             Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%d %b %Y, %H:%M')}", styles["BatchSmall"]), Spacer(1, 12),
+             Paragraph(f"<b>Number of compounds:</b> {len(compounds)}", styles["BodyText"]), Spacer(1, 10)]
+    for idx, item in enumerate(compounds, 1):
+        if idx > 1:
+            story.append(Spacer(1, 12))
+        story.extend([Paragraph(f"{idx}. {html.escape(item['name'])}", styles["Heading2"]),
+                      Paragraph(f"<b>SMILES:</b> {html.escape(item['smiles'])}", styles["BatchSmall"]),
+                      Paragraph(f"<b>Molecular formula:</b> {html.escape(str(item['props'].get('Molecular formula', 'N/A')))} &nbsp;&nbsp; <b>Molecular weight:</b> {html.escape(str(item['props'].get('Molecular weight (g/mol)', 'N/A')))} g/mol", styles["BatchSmall"]), Spacer(1, 5)])
+        table_data = [["Property", "Calculated value"]] + [[str(k), str(v)] for k, v in item['props'].items()]
+        table = Table(table_data, colWidths=[3.15*inch, 3.0*inch], repeatRows=1)
+        table.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,0),colors.HexColor("#ffd600")),("TEXTCOLOR",(0,0),(-1,0),colors.black),("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),("FONTSIZE",(0,0),(-1,-1),8),("GRID",(0,0),(-1,-1),0.35,colors.HexColor("#b38b00")),("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white,colors.HexColor("#fff9d6")]),("VALIGN",(0,0),(-1,-1),"TOP"),("LEFTPADDING",(0,0),(-1,-1),6),("RIGHTPADDING",(0,0),(-1,-1),6),("TOPPADDING",(0,0),(-1,-1),4),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
+        story.extend([table, Spacer(1, 6)])
+    story.extend([Paragraph("Observations / interpretation", styles["Heading2"]), Paragraph(html.escape(observations).replace("\n", "<br/>"), styles["BatchSmall"]), Spacer(1, 10), Paragraph("Educational use only. Results are computational estimates and should not be treated as experimental measurements.", styles["Italic"])])
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
+
+
 def metric(label, value):
     st.markdown(f'<div class="metric-card"><div class="metric-label">{html.escape(str(label))}</div><div class="metric-value">{html.escape(str(value))}</div></div>', unsafe_allow_html=True)
 
@@ -223,17 +252,18 @@ NAV_ITEMS = {
     "Reports": "📄 Lab Reports",
     "About": "ℹ️ About",
 }
-brand_col, nav_col = st.columns([1.05, 5.95], vertical_alignment="center")
-with brand_col:
-    st.markdown('<div class="top-brand">🧪 Molecule<span>Lab</span></div>', unsafe_allow_html=True)
-with nav_col:
-    selected_nav = st.radio(
-        "Main navigation",
-        list(NAV_ITEMS.keys()),
-        horizontal=True,
-        label_visibility="collapsed",
-        key="top_navigation",
-    )
+with st.container(key="top_nav_bar"):
+    brand_col, nav_col = st.columns([1.05, 5.95], vertical_alignment="center")
+    with brand_col:
+        st.markdown('<div class="top-brand">🧪 Molecule<span>Lab</span></div>', unsafe_allow_html=True)
+    with nav_col:
+        selected_nav = st.radio(
+            "Main navigation",
+            list(NAV_ITEMS.keys()),
+            horizontal=True,
+            label_visibility="collapsed",
+            key="top_navigation_radio",
+        )
 page = NAV_ITEMS[selected_nav]
 st.markdown("<div style='height: .35rem'></div>", unsafe_allow_html=True)
 
@@ -453,27 +483,57 @@ elif page == "🧠 Learn & Quiz":
 
 # ───────────────────────── Reports ─────────────────────────
 elif page == "📄 Lab Reports":
-    st.markdown('<div class="hero"><div class="eyebrow">DOCUMENTATION</div><h1>Laboratory Reports</h1><p>Generate a downloadable PDF with the molecule identity and calculated descriptor table.</p></div>', unsafe_allow_html=True)
-    smiles, mol = get_active_molecule()
-    if mol is None:
-        st.warning("Load a valid molecule in Molecule Explorer before generating a report.")
+    st.markdown('<div class="hero"><div class="eyebrow">DOCUMENTATION</div><h1>Laboratory Reports</h1><p>Enter student details and add as many compounds as needed to create one downloadable PDF report.</p></div>', unsafe_allow_html=True)
+    student_col, reg_col = st.columns(2)
+    with student_col:
+        student_name = st.text_input("Student full name", placeholder="Enter your name", key="report_student_name")
+    with reg_col:
+        registration_number = st.text_input("Registration number", placeholder="Enter your registration number", key="report_registration_number")
+    st.markdown("### Compound list")
+    st.caption("Enter one compound per line in the format: Compound name | SMILES. Add as many lines as you need (up to 50 compounds per report).")
+    default_compounds = "Ethanol | CCO\nBenzene | c1ccccc1\nAspirin | CC(=O)Oc1ccccc1C(=O)O"
+    compound_text = st.text_area("Compounds (name | SMILES)", value=st.session_state.get("report_compound_text", default_compounds), height=190, key="report_compound_text", help="Example: Ethanol | CCO")
+    notes = st.text_area("Observation / interpretation", value="Calculated descriptors summarize selected structural features. These values are computational estimates, not experimental measurements.", height=110, key="report_observations")
+    if st.button("🔬 Validate compounds", type="primary"):
+        st.session_state["report_validate_requested"] = True
+    compounds = []
+    errors = []
+    lines = [line.strip() for line in compound_text.splitlines() if line.strip()]
+    if len(lines) > 50:
+        errors.append("Please limit each report to 50 compounds or fewer.")
     else:
-        props = molecule_properties(mol)
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            name = st.text_input("Compound name", value=st.session_state.get("active_name", "Molecule"))
-            st.text_input("SMILES", value=smiles, disabled=True)
-        with col2:
-            notes = st.text_area("Observation / interpretation", value="Calculated descriptors summarize selected structural features. These values are computational estimates, not experimental measurements.", height=135)
+        for line_no, line in enumerate(lines, 1):
+            if "|" not in line:
+                errors.append(f"Line {line_no}: use the format Compound name | SMILES.")
+                continue
+            compound_name, compound_smiles = [part.strip() for part in line.split("|", 1)]
+            mol = parse_smiles(compound_smiles)
+            if not compound_name or not compound_smiles:
+                errors.append(f"Line {line_no}: both compound name and SMILES are required.")
+            elif mol is None:
+                errors.append(f"Line {line_no} ({compound_name}): invalid SMILES string.")
+            else:
+                compounds.append({"name": compound_name, "smiles": compound_smiles, "props": molecule_properties(mol)})
+    if st.session_state.get("report_validate_requested"):
+        if errors:
+            for err in errors:
+                st.error(err)
+        else:
+            st.success(f"Validated {len(compounds)} compound(s) successfully.")
+    if compounds and not errors:
         st.markdown('<div class="panel">', unsafe_allow_html=True)
         section("Report preview")
-        st.write(f"**Compound:** {name}")
-        st.write(f"**Formula:** {props['Molecular formula']}")
-        st.write(f"**Molecular weight:** {props['Molecular weight (g/mol)']} g/mol")
-        st.write(f"**Descriptor count:** {len(props)}")
+        st.write(f"**Student:** {student_name or 'Not entered'}  ·  **Registration number:** {registration_number or 'Not entered'}")
+        st.write(f"**Compounds included:** {len(compounds)}")
+        st.dataframe(pd.DataFrame([{"Compound": c["name"], "SMILES": c["smiles"], "Formula": c["props"].get("Molecular formula", "N/A"), "Molecular weight (g/mol)": c["props"].get("Molecular weight (g/mol)", "N/A")} for c in compounds]), use_container_width=True, hide_index=True)
         st.markdown("</div>", unsafe_allow_html=True)
-        pdf = create_pdf(name, smiles, props, notes)
-        st.download_button("⬇️ Download PDF laboratory report", pdf, file_name=f"{re.sub(r'[^A-Za-z0-9_-]+', '_', name).strip('_') or 'molecule'}_lab_report.pdf", mime="application/pdf", type="primary")
+        if st.button("📄 Generate student laboratory report", type="primary"):
+            if not student_name.strip() or not registration_number.strip():
+                st.error("Please enter both your full name and registration number before generating the report.")
+            else:
+                pdf = create_batch_pdf(student_name.strip(), registration_number.strip(), compounds, notes)
+                safe_student = re.sub(r"[^A-Za-z0-9_-]+", "_", student_name).strip("_") or "student"
+                st.download_button("⬇️ Download PDF laboratory report", pdf, file_name=f"{safe_student}_chemistry_lab_report.pdf", mime="application/pdf", type="primary")
 
 # ───────────────────────── About ─────────────────────────
 elif page == "ℹ️ About":
