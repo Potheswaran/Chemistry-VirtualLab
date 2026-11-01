@@ -9,6 +9,7 @@ from io import BytesIO
 from datetime import datetime
 import html
 import math
+import re
 
 import streamlit as st
 import pandas as pd
@@ -32,7 +33,7 @@ st.set_page_config(
     page_title="MoleculeLab | Virtual Chemistry",
     page_icon="🧪",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 APP_NAME = "MoleculeLab"
@@ -59,11 +60,16 @@ st.markdown("""
 html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 .stApp { background: #f5f7fb; color: #15233b; }
 [data-testid="stHeader"] { background: rgba(245,247,251,.88); }
-[data-testid="stSidebar"] { background: #111e32; }
-[data-testid="stSidebar"] * { color: #eaf1ff !important; }
-[data-testid="stSidebar"] [data-testid="stRadio"] label { padding: 8px 10px; border-radius: 10px; }
-[data-testid="stSidebar"] [data-testid="stRadio"] label:hover { background: #20334f; }
-.block-container { padding-top: 1.8rem; padding-bottom: 3rem; max-width: 1440px; }
+[data-testid="stSidebar"] { display: none; }
+.block-container { padding-top: .8rem; padding-bottom: 3rem; max-width: 1440px; }
+.top-brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; color: #14334d; padding: .42rem 0; white-space: nowrap; }
+.top-brand span { color: #0f9387; }
+.st-key-top_navigation { position: sticky; top: 0; z-index: 999; background: rgba(245,247,251,.97); padding: .25rem 0 .6rem; border-bottom: 1px solid #dfe7f0; }
+.st-key-top_navigation [data-testid="stRadio"] > div { gap: .3rem; flex-wrap: wrap; }
+.st-key-top_navigation [data-testid="stRadio"] label { border: 1px solid #dce5ef; background: white; padding: .35rem .65rem; border-radius: 999px; margin: 0; font-size: .84rem; }
+.st-key-top_navigation [data-testid="stRadio"] label:has(input:checked) { background: #12334e; border-color: #12334e; color: white; }
+.st-key-top_navigation [data-testid="stRadio"] label:has(input:checked) p { color: white !important; }
+.st-key-top_navigation [data-testid="stRadio"] label p { margin: 0; }
 .hero {
     padding: 30px 34px; border-radius: 22px;
     background: linear-gradient(115deg, #10223c 0%, #163d5c 55%, #167d80 100%);
@@ -203,19 +209,29 @@ def get_active_molecule():
     smiles = st.session_state.get("active_smiles", "CCO")
     return smiles, parse_smiles(smiles)
 
-# ───────────────────────── Sidebar navigation ─────────────────────────
-with st.sidebar:
-    st.markdown("## 🧪 MoleculeLab")
-    st.markdown('<span class="pill">VIRTUAL CHEMISTRY</span>', unsafe_allow_html=True)
-    st.markdown("---")
-    page = st.radio(
-        "LABORATORY MENU",
-        ["🏠 Home", "🧬 Molecule Explorer", "📊 Structure Analysis", "⚛️ Bond Lab", "🧠 Learn & Quiz", "📄 Lab Reports", "ℹ️ About"],
-        label_visibility="visible",
+# ───────────────────────── Top navigation ─────────────────────────
+NAV_ITEMS = {
+    "Home": "🏠 Home",
+    "Explore": "🧬 Molecule Explorer",
+    "Analysis": "📊 Structure Analysis",
+    "Bond Lab": "⚛️ Bond Lab",
+    "Learn & Quiz": "🧠 Learn & Quiz",
+    "Reports": "📄 Lab Reports",
+    "About": "ℹ️ About",
+}
+brand_col, nav_col = st.columns([1.05, 5.95], vertical_alignment="center")
+with brand_col:
+    st.markdown('<div class="top-brand">🧪 Molecule<span>Lab</span></div>', unsafe_allow_html=True)
+with nav_col:
+    selected_nav = st.radio(
+        "Main navigation",
+        list(NAV_ITEMS.keys()),
+        horizontal=True,
+        label_visibility="collapsed",
+        key="top_navigation",
     )
-    st.markdown("---")
-    st.caption("An educational cheminformatics project")
-    st.caption("Built with Python · Streamlit · RDKit")
+page = NAV_ITEMS[selected_nav]
+st.markdown("<div style='height: .35rem'></div>", unsafe_allow_html=True)
 
 # helper needed for download
 def _png_bytes(mol):
@@ -232,47 +248,26 @@ if page == "🏠 Home":
       <p>A virtual laboratory to visualize chemical structures, inspect bonds, calculate molecular descriptors, and learn through hands-on exploration.</p>
     </div>
     """, unsafe_allow_html=True)
-    st.markdown("### Your laboratory, at a glance")
-    c1, c2, c3, c4 = st.columns(4)
-    with c1: metric("Example compounds", len(EXAMPLES))
-    with c2: metric("Analysis tools", "04")
-    with c3: metric("Visualization", "2D + 3D")
-    with c4: metric("Report format", "PDF")
-    st.write("")
-    left, right = st.columns([1.2, 0.8], gap="large")
-    with left:
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        section("Start a virtual experiment", "Choose a sample compound or enter a SMILES string to begin.")
-        choice = st.selectbox("Quick-start compound", list(EXAMPLES.keys()), key="home_example")
+    st.markdown("### Start a virtual experiment")
+    st.markdown("Choose a sample compound to load into the explorer, or navigate directly to a tool using the top menu.")
+    quick_col, action_col = st.columns([2, 1], gap="medium", vertical_alignment="bottom")
+    with quick_col:
+        choice = st.selectbox("Sample compound", list(EXAMPLES.keys()), key="home_example")
         st.caption(f"SMILES: `{EXAMPLES[choice]}`")
-        if st.button("Load compound into Molecule Explorer", type="primary", use_container_width=True):
+    with action_col:
+        if st.button("Load compound", type="primary", use_container_width=True):
             st.session_state.active_smiles = EXAMPLES[choice]
             st.session_state.active_name = choice
-            st.success(f"{choice} loaded. Open Molecule Explorer from the sidebar.")
-        st.markdown("</div>", unsafe_allow_html=True)
-        st.write("")
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        section("What you can investigate")
-        st.markdown("""
-        - **Structure:** inspect 2D skeletal formulas and 3D conformations.
-        - **Properties:** calculate molecular weight, LogP, TPSA, H-bond counts, and more.
-        - **Bonds:** examine bond type, ring membership, and conjugation.
-        - **Compare:** explore how molecular descriptors differ between compounds.
-        """)
-        st.markdown("</div>", unsafe_allow_html=True)
-    with right:
-        st.markdown('<div class="panel">', unsafe_allow_html=True)
-        section("Suggested first experiment")
-        st.markdown("**Compare ethanol and acetic acid**")
-        st.write("Both are small organic molecules, but their functional groups and molecular descriptors differ.")
-        st.markdown("""
-        1. Open **Molecule Explorer** and load Ethanol.
-        2. Note the formula, molecular weight, and hydrogen-bond properties.
-        3. Open **Structure Analysis** to compare it with Acetic acid.
-        4. Export your findings as a laboratory report.
-        """)
-        st.markdown("</div>", unsafe_allow_html=True)
-    st.info("Educational note: molecular descriptors are calculated from the input structure. They do not, by themselves, establish biological activity, toxicity, or experimental outcomes.")
+            st.success(f"{choice} loaded. Open **Explore** from the top navigation.")
+    st.markdown("### Explore the laboratory")
+    st.markdown("""
+    - **Molecule Explorer** — view 2D structures, 3D conformations, and molecular descriptors.
+    - **Structure Analysis** — compare compounds and visualize property differences.
+    - **Bond Lab** — inspect bond order, ring membership, and conjugation.
+    - **Learn & Quiz** — review cheminformatics concepts and test your knowledge.
+    - **Lab Reports** — export molecular analysis as a PDF.
+    """)
+    st.caption("Educational use only: calculated descriptors are not experimental measurements and do not establish biological activity, toxicity, or clinical outcomes.")
 
 # ───────────────────────── Molecule Explorer ─────────────────────────
 elif page == "🧬 Molecule Explorer":
