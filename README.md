@@ -4,11 +4,12 @@ MoleculeLab is a Streamlit-based virtual chemistry laboratory for exploring mole
 
 ## Features
 
-- **Home dashboard** with quick-start compounds and a suggested first experiment.
-- **Molecule Explorer** to enter SMILES, view a 2D structure, inspect a 3D conformer, and calculate molecular descriptors.
-- **Structure–Property Analysis** to compare compounds and visualize a selected descriptor.
+- **Redesigned Home dashboard** with a guided workflow, feature tiles, descriptor highlights, and quick-start compounds.
+- **Molecule Explorer** to enter SMILES, view a 2D structure, inspect a 3D conformer, calculate molecular descriptors, and read a built-in descriptor interpretation guide.
+- **Structure–Property Analysis** to compare compounds, visualize a selected descriptor, and learn how to interpret comparisons.
 - **Bond Lab** to inspect bond order, ring membership, and conjugation flags.
 - **Learn & Quiz** with a short concept guide and interactive knowledge check.
+- **Project overview** explaining the input → parsing → calculation → presentation workflow and the role of each technology.
 - **Lab Reports** to export calculated molecular properties to a PDF.
 - **CSV downloads** for property tables, bond inventories, and comparisons.
 
@@ -18,7 +19,7 @@ Python · Streamlit · RDKit · py3Dmol · Pandas · Matplotlib · ReportLab
 
 ## Run locally
 
-Use Python 3.10–3.12 in a virtual environment where possible.
+Use Python 3.12 in a virtual environment for the tested deployment configuration.
 
 ```bash
 python -m venv .venv
