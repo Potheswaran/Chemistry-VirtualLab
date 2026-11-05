@@ -173,26 +173,52 @@ def make_2d_png(mol, size=(760, 520)):
     rdDepictor.Compute2DCoords(copy)
     return Draw.MolToImage(copy, size=size, kekulize=True)
 
-def make_3d_html(mol, style="stick"):
-    """Build a self-contained py3Dmol viewer HTML fragment."""
+def generate_3d_molecule(mol):
+    """Create an explicit-hydrogen 3D conformer and return its molecule or None."""
     work = Chem.AddHs(Chem.Mol(mol))
-    status = AllChem.EmbedMolecule(work, randomSeed=7)
+    status = AllChem.EmbedMolecule(work, randomSeed=7, maxAttempts=100)
     if status != 0:
         return None
     try:
         if AllChem.MMFFHasAllMoleculeParams(work):
-            AllChem.MMFFOptimizeMolecule(work, maxIters=300)
+            AllChem.MMFFOptimizeMolecule(work, maxIters=500)
         elif AllChem.UFFHasAllMoleculeParams(work):
-            AllChem.UFFOptimizeMolecule(work, maxIters=300)
+            AllChem.UFFOptimizeMolecule(work, maxIters=500)
     except (ValueError, RuntimeError):
         pass
+    return work
+
+def make_3d_html(mol, style="stick", show_atom_labels=False):
+    """Build a browser-based interactive 3D viewer for a generated conformer."""
+    work = generate_3d_molecule(mol)
+    if work is None:
+        return None
     block = Chem.MolToMolBlock(work)
-    viewer = py3Dmol.view(width=760, height=460)
+    viewer = py3Dmol.view(width=900, height=540)
     viewer.addModel(block, "mol")
-    viewer.setStyle({"stick": {}} if style == "stick" else {"sphere": {"scale": 0.28}, "stick": {"radius": 0.12}})
+    if style == "Space-filling":
+        viewer.setStyle({"sphere": {"scale": 0.34}})
+    elif style == "Ball-and-stick":
+        viewer.setStyle({"stick": {"radius": 0.14}, "sphere": {"scale": 0.24}})
+    else:
+        viewer.setStyle({"stick": {"radius": 0.20}})
+    if show_atom_labels:
+        for atom in work.GetAtoms():
+            if atom.GetSymbol() != "H":
+                pos = work.GetConformer().GetAtomPosition(atom.GetIdx())
+                viewer.addLabel(f"{atom.GetSymbol()}{atom.GetIdx()+1}", {
+                    "position": {"x": pos.x, "y": pos.y, "z": pos.z}, "backgroundColor": "#111111",
+                    "backgroundOpacity": 0.75, "fontColor": "#ffd600", "fontSize": 11
+                })
     viewer.setBackgroundColor("#000000")
     viewer.zoomTo()
     return viewer._make_html()
+
+def make_3d_sdf(mol):
+    work = generate_3d_molecule(mol)
+    if work is None:
+        return None
+    return Chem.MolToMolBlock(work) + "\n$$$$\n"
 
 def bond_summary(mol):
     rows = []
@@ -368,12 +394,15 @@ elif page == "🧬 Molecule Explorer":
     if selected != "Custom input":
         st.session_state.active_smiles = EXAMPLES[selected]
         st.session_state.active_name = selected
+    st.markdown("### Analyze your own molecule")
+    st.caption("Paste any valid SMILES notation. The app will parse it, draw a 2D structure, generate an illustrative 3D conformer, and calculate descriptors.")
     with st.form("smiles_form"):
-        smiles_input = st.text_input("SMILES notation", value=st.session_state.get("active_smiles", "CCO"), help="SMILES is a text representation of a chemical structure.")
-        submitted = st.form_submit_button("Analyze molecule", type="primary")
+        custom_name = st.text_input("Molecule name (optional)", value=st.session_state.get("active_name", "Custom molecule") if selected == "Custom input" else selected, placeholder="e.g. My compound")
+        smiles_input = st.text_area("SMILES notation", value=st.session_state.get("active_smiles", "CCO"), height=90, help="Examples: CCO (ethanol), c1ccccc1 (benzene), CC(=O)O (acetic acid).")
+        submitted = st.form_submit_button("🧪 Analyze my SMILES", type="primary")
     if submitted:
         st.session_state.active_smiles = smiles_input.strip()
-        st.session_state.active_name = selected if selected != "Custom input" else "Custom molecule"
+        st.session_state.active_name = custom_name.strip() or "Custom molecule"
     smiles, mol = get_active_molecule()
     if mol is None:
         st.error("This SMILES string could not be parsed. Check the notation and try again.")
@@ -400,14 +429,23 @@ elif page == "🧬 Molecule Explorer":
                 st.write(f"**SMILES:** `{smiles}`")
                 st.download_button("Download 2D structure (PNG)", data=make_2d_png(mol).save if False else _png_bytes(mol), file_name="molecule_structure.png", mime="image/png")
         with tab3d:
-            view_style = st.radio("Display style", ["stick", "ball-and-stick"], horizontal=True)
+            st.markdown("#### Interactive 3D molecular model")
+            view_col, label_col = st.columns([2, 1])
+            with view_col:
+                view_style = st.radio("Rendering style", ["Stick", "Ball-and-stick", "Space-filling"], horizontal=True, index=1)
+            with label_col:
+                show_labels = st.checkbox("Label heavy atoms", value=False)
             try:
-                html_view = make_3d_html(mol, view_style)
+                html_view = make_3d_html(mol, view_style, show_labels)
                 if html_view:
-                    components.html(html_view, height=480, scrolling=False)
-                    st.caption("3D coordinates are generated computationally and optimized when supported. They are illustrative, not an experimental structure.")
+                    components.html(html_view, height=560, scrolling=False)
+                    sdf_data = make_3d_sdf(mol)
+                    if sdf_data:
+                        st.download_button("⬇️ Download 3D structure (SDF/MOL)", sdf_data, file_name="molecule_3d_structure.sdf", mime="chemical/x-mdl-sdfile")
+                    st.caption("Drag to rotate · Scroll to zoom · Right-click or two-finger drag to pan. Hydrogens are added for 3D geometry generation.")
+                    st.info("The 3D coordinates are computationally generated and force-field optimized when supported. They are an illustrative conformer, not an experimental crystal structure or a prediction of the molecule's only shape.")
                 else:
-                    st.warning("A 3D conformer could not be generated for this structure.")
+                    st.warning("A 3D conformer could not be generated for this structure. Try a different valid SMILES or a smaller structure.")
             except Exception as exc:
                 st.warning("The 3D viewer could not be prepared for this molecule.")
                 st.caption(f"Technical detail: {type(exc).__name__}")
@@ -436,41 +474,56 @@ elif page == "🧬 Molecule Explorer":
 # ───────────────────────── Structure Analysis ─────────────────────────
 elif page == "📊 Structure Analysis":
     st.markdown('<div class="hero"><div class="eyebrow">WORKBENCH 02</div><h1>Structure–Property Analysis</h1><p>Compare molecular descriptors across compounds and explore structure–property patterns.</p></div>', unsafe_allow_html=True)
-    selected_names = st.multiselect("Choose compounds to compare", list(EXAMPLES.keys()), default=["Ethanol", "Acetic acid", "Benzene"])
-    if selected_names:
+    st.markdown("### Compare sample and user-entered molecules")
+    selected_names = st.multiselect("Choose sample compounds", list(EXAMPLES.keys()), default=["Ethanol", "Acetic acid", "Benzene"])
+    custom_compare = st.text_area("Add your own compounds (one per line: Name | SMILES)", placeholder="My molecule | CCN\nAnother molecule | c1ccccc1O", height=100, key="custom_compare_input")
+    if selected_names or custom_compare.strip():
         rows = []
         for name in selected_names:
             mol = parse_smiles(EXAMPLES[name])
             if mol:
                 rows.append({"Compound": name, "SMILES": EXAMPLES[name], **molecule_properties(mol)})
-        df = pd.DataFrame(rows)
-        st.dataframe(df, use_container_width=True, hide_index=True)
-        numeric_cols = [c for c in df.select_dtypes(include="number").columns if c not in ("Total atoms (incl. implicit H)",)]
-        if numeric_cols:
-            chosen_prop = st.selectbox("Descriptor to visualize", numeric_cols, index=numeric_cols.index("Molecular weight (g/mol)") if "Molecular weight (g/mol)" in numeric_cols else 0)
-            fig, ax = plt.subplots(figsize=(9, 4.3), facecolor="#000000")
-            ax.set_facecolor("#000000")
-            ax.bar(df["Compound"], df[chosen_prop], color="#ffd600", edgecolor="#fff176")
-            ax.set_ylabel(chosen_prop, color="#ffd600")
-            ax.set_title(f"{chosen_prop} by compound", color="#ffd600")
-            ax.tick_params(axis="x", rotation=25, colors="#ffd600")
-            ax.tick_params(axis="y", colors="#ffd600")
-            for spine in ax.spines.values():
-                spine.set_color("#ffd600")
-            ax.grid(axis="y", color="#665500", alpha=0.5)
-            fig.tight_layout()
-            st.pyplot(fig)
-            plt.close(fig)
-        csv = df.to_csv(index=False).encode("utf-8")
-        st.download_button("Download comparison CSV", csv, "structure_property_comparison.csv", "text/csv")
-        st.caption("Descriptors are computed from SMILES using RDKit. Correlation between descriptors does not prove causation.")
-        with st.expander("How to read this comparison"):
-            st.markdown("""
-            - Compare one descriptor at a time to avoid mixing different units.
-            - Molecular weight is reported in g/mol; TPSA is reported in Å²; LogP is dimensionless.
-            - A larger value is not automatically better. The relevant range depends on the scientific question.
-            - These are computed descriptors, not laboratory measurements.
-            """)
+        for line_no, line in enumerate([x.strip() for x in custom_compare.splitlines() if x.strip()], 1):
+            if "|" not in line:
+                st.warning(f"Custom line {line_no}: use Name | SMILES format.")
+                continue
+            custom_name, custom_smiles = [x.strip() for x in line.split("|", 1)]
+            custom_mol = parse_smiles(custom_smiles)
+            if not custom_name or custom_mol is None:
+                st.warning(f"Custom line {line_no}: missing name or invalid SMILES.")
+                continue
+            rows.append({"Compound": custom_name, "SMILES": custom_smiles, **molecule_properties(custom_mol)})
+        if not rows:
+            st.info("Add at least one valid sample or custom SMILES molecule to compare.")
+        else:
+            df = pd.DataFrame(rows)
+            st.dataframe(df, use_container_width=True, hide_index=True)
+            numeric_cols = [c for c in df.select_dtypes(include="number").columns if c not in ("Total atoms (incl. implicit H)",)]
+            if numeric_cols:
+                chosen_prop = st.selectbox("Descriptor to visualize", numeric_cols, index=numeric_cols.index("Molecular weight (g/mol)") if "Molecular weight (g/mol)" in numeric_cols else 0)
+                fig, ax = plt.subplots(figsize=(9, 4.3), facecolor="#000000")
+                ax.set_facecolor("#000000")
+                ax.bar(df["Compound"], df[chosen_prop], color="#ffd600", edgecolor="#fff176")
+                ax.set_ylabel(chosen_prop, color="#ffd600")
+                ax.set_title(f"{chosen_prop} by compound", color="#ffd600")
+                ax.tick_params(axis="x", rotation=25, colors="#ffd600")
+                ax.tick_params(axis="y", colors="#ffd600")
+                for spine in ax.spines.values():
+                    spine.set_color("#ffd600")
+                ax.grid(axis="y", color="#665500", alpha=0.5)
+                fig.tight_layout()
+                st.pyplot(fig)
+                plt.close(fig)
+            csv = df.to_csv(index=False).encode("utf-8")
+            st.download_button("Download comparison CSV", csv, "structure_property_comparison.csv", "text/csv")
+            st.caption("Descriptors are computed from SMILES using RDKit. Correlation between descriptors does not prove causation.")
+            with st.expander("How to read this comparison"):
+                st.markdown("""
+                - Compare one descriptor at a time to avoid mixing different units.
+                - Molecular weight is reported in g/mol; TPSA is reported in Å²; LogP is dimensionless.
+                - A larger value is not automatically better. The relevant range depends on the scientific question.
+                - These are computed descriptors, not laboratory measurements.
+                """)
     else:
         st.info("Select at least one compound to display a comparison.")
 
