@@ -6,7 +6,6 @@ Run locally: streamlit run app.py
 from __future__ import annotations
 
 from io import BytesIO
-from datetime import datetime
 import html
 import math
 import re
@@ -61,15 +60,15 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] { background: var(--black) !important; color: var(--yellow) !important; }
 [data-testid="stHeader"] { background: rgba(0,0,0,.96) !important; }
 [data-testid="stSidebar"] { display: none; }
-.block-container { padding-top: 1.8rem; padding-bottom: 3rem; max-width: 1440px; }
+.block-container { padding-top: .8rem; padding-bottom: 3rem; max-width: 1440px; }
 .stApp p, .stApp li, .stApp label, .stApp span, .stApp div, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5 { color: var(--yellow); }
 .top-brand { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--yellow) !important; padding: .42rem 0; white-space: nowrap; }
 .top-brand span { color: var(--yellow-soft) !important; }
-.st-key-top_nav_bar { position: sticky; top: 4.2rem; z-index: 99999; background: #000 !important; padding: .65rem .5rem .8rem; border-bottom: 2px solid var(--yellow); margin-bottom: 1.4rem; box-shadow: 0 8px 14px rgba(0,0,0,.9); }
+.st-key-top_nav_bar { position: sticky; top: 0; z-index: 99999; background: #000 !important; padding: .45rem .35rem .65rem; border-bottom: 2px solid var(--yellow); margin-bottom: 1rem; }
 .st-key-top_nav_bar [data-testid="stRadio"] > div { gap: .3rem; flex-wrap: wrap; }
-.st-key-top_nav_bar [data-testid="stRadio"] label { border: 1px solid var(--yellow) !important; background: #080808 !important; color: var(--yellow) !important; padding: .42rem .72rem; border-radius: 999px; margin: 0; font-size: .84rem; opacity: 1 !important; }\n.st-key-top_nav_bar [data-testid="stRadio"] label p, .st-key-top_nav_bar [data-testid="stRadio"] label span, .st-key-top_nav_bar [data-testid="stRadio"] label div { color: var(--yellow) !important; opacity: 1 !important; }
+.st-key-top_nav_bar [data-testid="stRadio"] label { border: 1px solid var(--yellow); background: #080808; padding: .35rem .65rem; border-radius: 999px; margin: 0; font-size: .84rem; }
 .st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) { background: var(--yellow); border-color: var(--yellow); color: #000 !important; }
-.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) p, .st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) span, .st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) div { color: #000 !important; opacity: 1 !important; }
+.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) p { color: #000 !important; }
 .st-key-top_nav_bar [data-testid="stRadio"] label p { margin: 0; }
 .st-key-top_navigation_radio { position: static; }
 .hero { padding: 30px 34px; border-radius: 18px; background: #050505; border: 1px solid var(--yellow); color: var(--yellow); margin-bottom: 24px; position: relative; overflow: hidden; }
@@ -95,40 +94,6 @@ input, textarea, [data-baseweb="input"], [data-baseweb="select"] > div, [data-ba
 [data-testid="stTabs"] button[aria-selected="true"] { border-bottom-color: var(--yellow) !important; }
 [data-testid="stAlert"] { background: #090909 !important; border: 1px solid var(--yellow) !important; color: var(--yellow) !important; }
 code, pre { background: #111 !important; color: var(--yellow) !important; }
-/* Strong contrast overrides for navigation and all interactive controls */
-/* Primary yellow buttons must always use black text, including nested Streamlit spans and paragraphs. */
-.stApp button[kind="primary"],
-.stApp [data-testid="stFormSubmitButton"] button,
-.stApp [data-testid="stDownloadButton"] button[kind="primary"] {
-    background: #ffd600 !important;
-    border-color: #ffd600 !important;
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-}
-.stApp button[kind="primary"] *,
-.stApp [data-testid="stFormSubmitButton"] button *,
-.stApp [data-testid="stDownloadButton"] button[kind="primary"] * {
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-    opacity: 1 !important;
-}
-.stApp button[kind="primary"]:hover,
-.stApp [data-testid="stFormSubmitButton"] button:hover,
-.stApp [data-testid="stDownloadButton"] button[kind="primary"]:hover {
-    background: #ffe766 !important;
-    color: #000000 !important;
-}
-.stApp button[kind="primary"]:hover *,
-.stApp [data-testid="stFormSubmitButton"] button:hover * {
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-}
-.st-key-top_nav_bar [data-testid="stRadio"] label:not(:has(input:checked)) * { color: #ffd600 !important; }
-.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) { background: #ffd600 !important; }
-.st-key-top_nav_bar [data-testid="stRadio"] label:has(input:checked) * { color: #000000 !important; }
-[data-baseweb="select"] > div, [data-baseweb="input"] > div, [data-baseweb="textarea"] { background-color: #080808 !important; }
-[data-baseweb="select"] input, [data-baseweb="input"] input, textarea { color: #ffd600 !important; -webkit-text-fill-color: #ffd600 !important; }
-[data-testid="stSelectbox"] svg { fill: #ffd600 !important; }
 footer { visibility: hidden; }
 </style>
 """, unsafe_allow_html=True)
@@ -157,8 +122,62 @@ def molecule_properties(mol) -> dict:
         "LogP": round(Crippen.MolLogP(mol), 3),
         "Topological polar surface area (Å²)": round(rdMolDescriptors.CalcTPSA(mol), 3),
         "Ring count": int(rdMolDescriptors.CalcNumRings(mol)),
+        "Aromatic rings": int(rdMolDescriptors.CalcNumAromaticRings(mol)),
+        "Heteroatoms": int(rdMolDescriptors.CalcNumHeteroatoms(mol)),
+        "Formal charge": int(Chem.GetFormalCharge(mol)),
+        "Molar refractivity": round(Crippen.MolMR(mol), 3),
         "Fraction C sp3": round(rdMolDescriptors.CalcFractionCSP3(mol), 3),
     }
+
+
+FUNCTIONAL_GROUPS = {
+    "Alcohol": "[OX2H][CX4]",
+    "Carboxylic acid": "[CX3](=O)[OX2H1]",
+    "Ester": "[CX3](=O)[OX2H0][#6]",
+    "Amide": "[NX3][CX3](=[OX1])[#6]",
+    "Amine": "[NX3;H2,H1;!$(NC=O)]",
+    "Aldehyde": "[CX3H1](=O)[#6]",
+    "Ketone": "[#6][CX3](=O)[#6]",
+    "Ether": "[OD2]([#6])[#6]",
+    "Aromatic ring": "a1aaaaa1",
+    "Alkene": "[CX3]=[CX3]",
+    "Alkyne": "[CX2]#[CX2]",
+    "Nitrile": "[C]#[N]",
+    "Halide": "[F,Cl,Br,I]",
+}
+
+def detect_functional_groups(mol):
+    found = []
+    for name, smarts in FUNCTIONAL_GROUPS.items():
+        pattern = Chem.MolFromSmarts(smarts)
+        if pattern is not None and mol.HasSubstructMatch(pattern):
+            found.append(name)
+    return found
+
+def lipinski_screen(props):
+    checks = {
+        "Molecular weight ≤ 500": props["Molecular weight (g/mol)"] <= 500,
+        "LogP ≤ 5": props["LogP"] <= 5,
+        "H-bond donors ≤ 5": props["H-bond donors"] <= 5,
+        "H-bond acceptors ≤ 10": props["H-bond acceptors"] <= 10,
+    }
+    return checks
+
+def property_interpretation(props):
+    notes = []
+    mw = props["Molecular weight (g/mol)"]
+    logp = props["LogP"]
+    tpsa = props["Topological polar surface area (Å²)"]
+    notes.append("Molecular weight is the calculated mass of the molecule in g/mol.")
+    notes.append("LogP is a computational estimate of lipophilicity; larger values generally indicate greater preference for a non-polar phase.")
+    notes.append("TPSA estimates the molecule's polar surface area from its 2D structure.")
+    if mw > 500:
+        notes.append("The molecular weight is above the commonly used 500 g/mol Lipinski screening threshold.")
+    if logp > 5:
+        notes.append("The LogP is above the commonly used value of 5 in Lipinski screening.")
+    if tpsa > 140:
+        notes.append("The TPSA is relatively high; this can be relevant when discussing permeability.")
+    return notes
 
 def make_2d_png(mol, size=(760, 520)):
     copy = Chem.Mol(mol)
@@ -211,7 +230,6 @@ def create_pdf(molecule_name, smiles, props, observations="Generated with Molecu
         Spacer(1, 8),
         Paragraph(f"<b>Compound:</b> {html.escape(str(molecule_name))}", styles["BodyText"]),
         Paragraph(f"<b>SMILES:</b> {html.escape(str(smiles))}", styles["SmallBody"]),
-        Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%d %b %Y')}", styles["SmallBody"]),
         Spacer(1, 14),
         Paragraph("Calculated molecular properties", styles["Heading2"]),
     ]
@@ -246,7 +264,7 @@ def create_batch_pdf(student_name, registration_number, compounds, observations)
     story = [Paragraph("MoleculeLab", styles["BatchTitle"]), Paragraph("Virtual Chemistry Laboratory · Multi-Compound Analysis Report", styles["Heading2"]), Spacer(1, 10),
              Paragraph(f"<b>Student name:</b> {html.escape(student_name)}", styles["BodyText"]),
              Paragraph(f"<b>Registration number:</b> {html.escape(registration_number)}", styles["BodyText"]),
-             Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%d %b %Y')}", styles["BatchSmall"]), Spacer(1, 12),
+             Paragraph(f"<b>Generated:</b> {datetime.now().strftime('%d %b %Y, %H:%M')}", styles["BatchSmall"]), Spacer(1, 12),
              Paragraph(f"<b>Number of compounds:</b> {len(compounds)}", styles["BodyText"]), Spacer(1, 10)]
     for idx, item in enumerate(compounds, 1):
         if idx > 1:
@@ -316,6 +334,19 @@ if page == "🏠 Home":
       <p>A virtual laboratory to visualize chemical structures, inspect bonds, calculate molecular descriptors, and learn through hands-on exploration.</p>
     </div>
     """, unsafe_allow_html=True)
+    st.markdown("### Laboratory dashboard")
+    active_smiles = st.session_state.get("active_smiles", "CCO")
+    active_mol = parse_smiles(active_smiles)
+    dashboard_cols = st.columns(4)
+    dashboard_values = [
+        ("Sample compounds", len(EXAMPLES)),
+        ("Learning topics", 7),
+        ("Analysis tools", 4),
+        ("Active molecule", st.session_state.get("active_name", "Ethanol") if active_mol else "None"),
+    ]
+    for col, (label, value) in zip(dashboard_cols, dashboard_values):
+        with col:
+            metric(label, value)
     st.markdown("### Start a virtual experiment")
     st.markdown("Choose a sample compound to load into the explorer, or navigate directly to a tool using the top menu.")
     quick_col, action_col = st.columns([2, 1], gap="medium", vertical_alignment="bottom")
@@ -364,7 +395,7 @@ elif page == "🧬 Molecule Explorer":
         with b: metric("Molecular weight", f"{props['Molecular weight (g/mol)']} g/mol")
         with c: metric("Heavy atoms", props["Heavy atoms"])
         with d: metric("Rotatable bonds", props["Rotatable bonds"])
-        tab2d, tab3d, tabprops = st.tabs(["🧾 2D structure", "🧊 3D model", "📋 Properties"])
+        tab2d, tab3d, tabprops, tabgroups, tabscreen = st.tabs(["🧾 2D structure", "🧊 3D model", "📋 Properties", "🧪 Functional groups", "💊 Drug-likeness"])
         with tab2d:
             left, right = st.columns([1, 1])
             with left:
@@ -393,6 +424,26 @@ elif page == "🧬 Molecule Explorer":
             prop_df = pd.DataFrame([{"Property": k, "Value": v} for k, v in props.items()])
             st.dataframe(prop_df, use_container_width=True, hide_index=True)
             st.download_button("Download properties as CSV", prop_df.to_csv(index=False).encode("utf-8"), "molecular_properties.csv", "text/csv")
+            st.markdown("#### What do these values mean?")
+            for note in property_interpretation(props):
+                st.write("• " + note)
+        with tabgroups:
+            groups = detect_functional_groups(mol)
+            st.markdown("#### Functional groups detected")
+            if groups:
+                for group_name in groups:
+                    st.success(group_name)
+            else:
+                st.info("No groups from the current built-in pattern list were detected.")
+            st.caption("Pattern matching is an educational structural screen. It may not identify every chemical environment or functional-group variant.")
+        with tabscreen:
+            st.markdown("#### Lipinski-style screening")
+            checks = lipinski_screen(props)
+            passed = sum(checks.values())
+            st.metric("Criteria satisfied", f"{passed} / 4")
+            for criterion, ok in checks.items():
+                st.write(("✅ " if ok else "⚠️ ") + criterion)
+            st.caption("This is a simple rule-based educational screen, not a prediction of absorption, safety, efficacy, or whether a compound is a medicine.")
 
 # ───────────────────────── Structure Analysis ─────────────────────────
 elif page == "📊 Structure Analysis":
@@ -422,6 +473,26 @@ elif page == "📊 Structure Analysis":
             fig.tight_layout()
             st.pyplot(fig)
             plt.close(fig)
+        st.markdown("### Structural similarity")
+        st.caption("Morgan fingerprint Tanimoto similarity compares encoded substructure patterns; it is not a measure of biological similarity.")
+        if len(selected_names) >= 2:
+            from rdkit import DataStructs
+            fps = [rdMolDescriptors.GetMorganFingerprintAsBitVect(parse_smiles(EXAMPLES[n]), 2, nBits=2048) for n in selected_names]
+            sim = []
+            for i, fp in enumerate(fps):
+                sim.append([round(DataStructs.TanimotoSimilarity(fp, other), 3) for other in fps])
+            sim_df = pd.DataFrame(sim, index=selected_names, columns=selected_names)
+            st.dataframe(sim_df, use_container_width=True)
+            fig_sim, ax_sim = plt.subplots(figsize=(7, 4), facecolor="#000000")
+            ax_sim.imshow(sim, vmin=0, vmax=1, cmap="viridis")
+            ax_sim.set_xticks(range(len(selected_names)), selected_names, rotation=35, ha="right", color="#ffd600")
+            ax_sim.set_yticks(range(len(selected_names)), selected_names, color="#ffd600")
+            ax_sim.set_title("Tanimoto similarity matrix", color="#ffd600")
+            fig_sim.tight_layout()
+            st.pyplot(fig_sim)
+            plt.close(fig_sim)
+        else:
+            st.info("Choose at least two compounds to calculate pairwise similarity.")
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button("Download comparison CSV", csv, "structure_property_comparison.csv", "text/csv")
         st.caption("Descriptors are computed from SMILES using RDKit. Correlation between descriptors does not prove causation.")
@@ -478,6 +549,10 @@ elif page == "🧠 Learn & Quiz":
             ("TPSA", "Topological polar surface area, a 2D descriptor related to polar atoms and their bonding environments."),
             ("Hydrogen-bond donors / acceptors", "Rule-based counts of groups that can donate or accept hydrogen bonds under the descriptor model."),
             ("Conformation", "A 3D arrangement of atoms accessible through rotations and geometry changes without changing connectivity."),
+            ("Functional group", "A recognizable atom or group-of-atoms pattern that contributes characteristic chemical behaviour."),
+            ("Aromaticity", "A delocalized bonding pattern in a cyclic, conjugated system; RDKit applies graph-based aromaticity rules."),
+            ("Tanimoto similarity", "A coefficient comparing the overlap of two molecular fingerprints, often used for structural similarity searches."),
+            ("Lipinski screening", "A set of simple molecular-property guidelines used in early oral drug-likeness discussions; it is not a guarantee of activity or safety."),
         ]
         for title, description in concepts:
             with st.expander(title):
@@ -489,6 +564,9 @@ elif page == "🧠 Learn & Quiz":
             {"q": "What does a 3D conformer generated by this app represent?", "options": ["An illustrative computed geometry", "A guaranteed crystal structure", "A lab measurement", "A reaction yield"], "answer": "An illustrative computed geometry", "why": "The app embeds and optionally optimizes a computational conformer; it is not a measured structure."},
             {"q": "What does LogP generally describe?", "options": ["Estimated lipophilicity", "Number of rings only", "Bond length", "Boiling point measurement"], "answer": "Estimated lipophilicity", "why": "LogP estimates partitioning between octanol and water."},
             {"q": "Does a higher descriptor value alone prove a compound is more effective as a medicine?", "options": ["No", "Yes, always", "Only for aromatic compounds", "Only if the molecule is large"], "answer": "No", "why": "Descriptors are useful features, but they do not establish clinical efficacy or safety."},
+            {"q": "What does TPSA describe?", "options": ["Topological polar surface area", "Total protein structure amount", "Temperature pressure scale", "Triple-bond count"], "answer": "Topological polar surface area", "why": "TPSA is a calculated descriptor related to polar atoms and their bonding environments."},
+            {"q": "What does a Tanimoto score of 1.0 mean for two identical fingerprint bit vectors?", "options": ["They are identical", "They have no shared bits", "One is twice as large", "They are experimentally identical"], "answer": "They are identical", "why": "A score of 1 indicates identical fingerprint bit sets; it does not establish identical experimental behaviour."},
+            {"q": "Which input format does the molecule explorer accept?", "options": ["SMILES", "PDF", "MP3", "PowerPoint"], "answer": "SMILES", "why": "The explorer parses SMILES strings into molecular graphs using RDKit."},
         ]
         if "quiz_answers" not in st.session_state:
             st.session_state.quiz_answers = {}
@@ -524,7 +602,7 @@ elif page == "📄 Lab Reports":
     with reg_col:
         registration_number = st.text_input("Registration number", placeholder="Enter your registration number", key="report_registration_number")
     st.markdown("### Compound list")
-    st.caption("Enter one compound per line in the format: Compound name | SMILES. Add as many lines as you need (up to 50 compounds per report).")
+    st.caption("Enter one compound per line in the format: Compound name | SMILES. Add as many lines as you need (up to 100 compounds per report).")
     default_compounds = "Ethanol | CCO\nBenzene | c1ccccc1\nAspirin | CC(=O)Oc1ccccc1C(=O)O"
     compound_text = st.text_area("Compounds (name | SMILES)", value=st.session_state.get("report_compound_text", default_compounds), height=190, key="report_compound_text", help="Example: Ethanol | CCO")
     notes = st.text_area("Observation / interpretation", value="Calculated descriptors summarize selected structural features. These values are computational estimates, not experimental measurements.", height=110, key="report_observations")
@@ -533,8 +611,8 @@ elif page == "📄 Lab Reports":
     compounds = []
     errors = []
     lines = [line.strip() for line in compound_text.splitlines() if line.strip()]
-    if len(lines) > 50:
-        errors.append("Please limit each report to 50 compounds or fewer.")
+    if len(lines) > 100:
+        errors.append("Please limit each report to 100 compounds or fewer.")
     else:
         for line_no, line in enumerate(lines, 1):
             if "|" not in line:
