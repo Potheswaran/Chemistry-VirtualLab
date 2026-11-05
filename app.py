@@ -629,30 +629,56 @@ elif page == "🧠 Learn & Quiz":
             {"q": "What does LogP generally describe?", "options": ["Estimated lipophilicity", "Number of rings only", "Bond length", "Boiling point measurement"], "answer": "Estimated lipophilicity", "why": "LogP estimates partitioning between octanol and water."},
             {"q": "Does a higher descriptor value alone prove a compound is more effective as a medicine?", "options": ["No", "Yes, always", "Only for aromatic compounds", "Only if the molecule is large"], "answer": "No", "why": "Descriptors are useful features, but they do not establish clinical efficacy or safety."},
         ]
-        if "quiz_answers" not in st.session_state:
-            st.session_state.quiz_answers = {}
-        with st.form("quiz_form"):
+        # Each attempt gets fresh widget keys so previous selections cannot carry over.
+        if "quiz_attempt" not in st.session_state:
+            st.session_state.quiz_attempt = 0
+        if "quiz_checked" not in st.session_state:
+            st.session_state.quiz_checked = False
+
+        attempt = st.session_state.quiz_attempt
+        with st.form(f"quiz_form_{attempt}"):
             for i, q in enumerate(questions):
                 st.markdown(f"**{i+1}. {q['q']}**")
-                st.radio("Select one answer", q["options"], key=f"quiz_{i}", label_visibility="collapsed")
+                st.radio(
+                    "Select one answer",
+                    q["options"],
+                    index=None,  # Do not preselect the first option or reveal the answer.
+                    key=f"quiz_{attempt}_{i}",
+                    label_visibility="collapsed",
+                )
             quiz_submit = st.form_submit_button("Check my answers", type="primary")
+
         if quiz_submit:
-            score = 0
-            for i, q in enumerate(questions):
-                selected_answer = st.session_state.get(f"quiz_{i}")
-                if selected_answer == q["answer"]:
-                    score += 1
-            st.session_state.quiz_score = score
-            st.session_state.quiz_checked = True
+            unanswered = [
+                i + 1 for i in range(len(questions))
+                if st.session_state.get(f"quiz_{attempt}_{i}") is None
+            ]
+            if unanswered:
+                st.warning("Please answer every question before checking your score. Unanswered: " + ", ".join(map(str, unanswered)))
+                st.session_state.quiz_checked = False
+            else:
+                score = sum(
+                    st.session_state.get(f"quiz_{attempt}_{i}") == q["answer"]
+                    for i, q in enumerate(questions)
+                )
+                st.session_state.quiz_score = score
+                st.session_state.quiz_checked = True
+
         if st.session_state.get("quiz_checked"):
             score = st.session_state.quiz_score
             st.metric("Your score", f"{score} / {len(questions)}", f"{round(score/len(questions)*100)}%")
             for i, q in enumerate(questions):
-                correct = st.session_state.get(f"quiz_{i}") == q["answer"]
-                st.markdown(f"{'✅' if correct else '❌'} **Q{i+1}:** {q['why']}")
-            if st.button("Try again"):
+                selected = st.session_state.get(f"quiz_{attempt}_{i}")
+                correct = selected == q["answer"]
+                st.markdown(
+                    f"{'✅' if correct else '❌'} **Q{i+1}:** "
+                    f"{'Your answer is correct.' if correct else 'Correct answer: ' + q['answer'] + '. '} {q['why']}"
+                )
+            if st.button("Try again", key=f"quiz_retry_{attempt}"):
+                st.session_state.quiz_attempt += 1
                 st.session_state.quiz_checked = False
                 st.rerun()
+
 
 # ───────────────────────── Reports ─────────────────────────
 elif page == "📄 Lab Reports":
